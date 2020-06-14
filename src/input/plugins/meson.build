@@ -113,9 +113,6 @@ input_plugins = static_library(
   'input_plugins',
   input_plugins_sources,
   include_directories: inc,
-<<<<<<< HEAD
-  dependencies: input_plugins_deps,
-=======
   dependencies: [
     log_dep,
     alsa_dep,
@@ -128,7 +125,6 @@ input_plugins = static_library(
     yajl_dep,
     crypto_md5_dep,
   ],
->>>>>>> c6a7f6dabc3509bf0a11dc6eafa89aaa8125b86c
 )
 
 input_plugins_dep = declare_dependency(
