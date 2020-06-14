@@ -415,6 +415,8 @@ Querying :program:`MPD`'s status
     - ``sticker``: the sticker database has been modified.
     - ``subscription``: a client has subscribed or unsubscribed to a channel
     - ``message``: a message was received on a channel this client is subscribed to; this event is only emitted when the queue is empty
+    - ``neighbor``: a neighbor was found or lost
+    - ``mount``: the mount list has changed
 
     Change events accumulate, even while the connection is not in
     "idle" mode; no events gets lost while the client is doing
@@ -483,7 +485,8 @@ Querying :program:`MPD`'s status
     - ``songs``: number of songs
     - ``uptime``: daemon uptime in seconds
     - ``db_playtime``: sum of all song times in the database in seconds
-    - ``db_update``: last db update in UNIX time
+    - ``db_update``: last db update in UNIX time (seconds since
+      1970-01-01 UTC)
     - ``playtime``: time length of music played
 
 Playback options
