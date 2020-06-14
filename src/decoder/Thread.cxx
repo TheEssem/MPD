@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -183,11 +183,9 @@ decoder_run_stream_locked(DecoderBridge &bridge, InputStream &is,
 	UriSuffixBuffer suffix_buffer;
 	const char *const suffix = uri_get_suffix(uri, suffix_buffer);
 
-	using namespace std::placeholders;
-	const auto f = std::bind(decoder_run_stream_plugin,
-				 std::ref(bridge), std::ref(is), std::ref(lock),
-				 suffix,
-				 _1, std::ref(tried_r));
+	const auto f = [&,suffix](const auto &plugin)
+		{ return decoder_run_stream_plugin(bridge, is, lock, suffix, plugin, tried_r); };
+
 	return decoder_plugins_try(f);
 }
 
@@ -424,6 +422,7 @@ decoder_run_song(DecoderControl &dc,
 		dc.start_time = dc.seek_time;
 
 	DecoderBridge bridge(dc, dc.start_time.IsPositive(),
+			     dc.initial_seek_essential,
 			     /* pass the song tag only if it's
 				authoritative, i.e. if it's a local
 				file - tags on "stream" songs are just

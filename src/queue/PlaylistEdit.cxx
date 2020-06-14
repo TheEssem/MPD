@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -327,7 +327,7 @@ playlist::MoveRange(PlayerControl &pc,
 		throw PlaylistError::BadRange();
 
 	if ((to >= 0 && to + end - start - 1 >= GetLength()) ||
-	    (to < 0 && unsigned(abs(to)) > GetLength()))
+	    (to < 0 && unsigned(std::abs(to)) > GetLength()))
 		throw PlaylistError::BadRange();
 
 	if ((int)start == to)
@@ -350,7 +350,7 @@ playlist::MoveRange(PlayerControl &pc,
 		if (start <= (unsigned)currentSong && (unsigned)currentSong < end)
 			/* no-op, can't be moved to offset of itself */
 			return;
-		to = (currentSong + abs(to)) % GetLength();
+		to = (currentSong + std::abs(to)) % GetLength();
 		if (start < (unsigned)to)
 			to -= end - start;
 	}

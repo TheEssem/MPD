@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ public:
 	SmbclientDirectoryReader(std::string &&_base, unsigned _handle)
 		:base(std::move(_base)), handle(_handle) {}
 
-	virtual ~SmbclientDirectoryReader();
+	~SmbclientDirectoryReader() override;
 
 	/* virtual methods from class StorageDirectoryReader */
 	const char *Read() noexcept override;
@@ -58,36 +58,34 @@ public:
 	SmbclientStorage(const char *_base, SMBCCTX *_ctx)
 		:base(_base), ctx(_ctx) {}
 
-	virtual ~SmbclientStorage() {
+	~SmbclientStorage() override {
 		const std::lock_guard<Mutex> lock(smbclient_mutex);
 		smbc_free_context(ctx, 1);
 	}
 
 	/* virtual methods from class Storage */
-	StorageFileInfo GetInfo(const char *uri_utf8, bool follow) override;
+	StorageFileInfo GetInfo(std::string_view uri_utf8, bool follow) override;
 
-	std::unique_ptr<StorageDirectoryReader> OpenDirectory(const char *uri_utf8) override;
+	std::unique_ptr<StorageDirectoryReader> OpenDirectory(std::string_view uri_utf8) override;
 
-	std::string MapUTF8(const char *uri_utf8) const noexcept override;
+	[[nodiscard]] std::string MapUTF8(std::string_view uri_utf8) const noexcept override;
 
-	const char *MapToRelativeUTF8(const char *uri_utf8) const noexcept override;
+	[[nodiscard]] std::string_view MapToRelativeUTF8(std::string_view uri_utf8) const noexcept override;
 };
 
 std::string
-SmbclientStorage::MapUTF8(const char *uri_utf8) const noexcept
+SmbclientStorage::MapUTF8(std::string_view uri_utf8) const noexcept
 {
-	assert(uri_utf8 != nullptr);
-
-	if (StringIsEmpty(uri_utf8))
+	if (uri_utf8.empty())
 		return base;
 
-	return PathTraitsUTF8::Build(base.c_str(), uri_utf8);
+	return PathTraitsUTF8::Build(base, uri_utf8);
 }
 
-const char *
-SmbclientStorage::MapToRelativeUTF8(const char *uri_utf8) const noexcept
+std::string_view
+SmbclientStorage::MapToRelativeUTF8(std::string_view uri_utf8) const noexcept
 {
-	return PathTraitsUTF8::Relative(base.c_str(), uri_utf8);
+	return PathTraitsUTF8::Relative(base, uri_utf8);
 }
 
 static StorageFileInfo
@@ -117,14 +115,14 @@ GetInfo(const char *path)
 }
 
 StorageFileInfo
-SmbclientStorage::GetInfo(const char *uri_utf8, gcc_unused bool follow)
+SmbclientStorage::GetInfo(std::string_view uri_utf8, [[maybe_unused]] bool follow)
 {
 	const std::string mapped = MapUTF8(uri_utf8);
 	return ::GetInfo(mapped.c_str());
 }
 
 std::unique_ptr<StorageDirectoryReader>
-SmbclientStorage::OpenDirectory(const char *uri_utf8)
+SmbclientStorage::OpenDirectory(std::string_view uri_utf8)
 {
 	std::string mapped = MapUTF8(uri_utf8);
 
@@ -137,7 +135,7 @@ SmbclientStorage::OpenDirectory(const char *uri_utf8)
 			throw MakeErrno("Failed to open directory");
 	}
 
-	return std::make_unique<SmbclientDirectoryReader>(std::move(mapped.c_str()),
+	return std::make_unique<SmbclientDirectoryReader>(std::move(mapped),
 							  handle);
 }
 
@@ -172,14 +170,14 @@ SmbclientDirectoryReader::Read() noexcept
 }
 
 StorageFileInfo
-SmbclientDirectoryReader::GetInfo(gcc_unused bool follow)
+SmbclientDirectoryReader::GetInfo([[maybe_unused]] bool follow)
 {
-	const std::string path = PathTraitsUTF8::Build(base.c_str(), name);
+	const std::string path = PathTraitsUTF8::Build(base, name);
 	return ::GetInfo(path.c_str());
 }
 
 static std::unique_ptr<Storage>
-CreateSmbclientStorageURI(gcc_unused EventLoop &event_loop, const char *base)
+CreateSmbclientStorageURI([[maybe_unused]] EventLoop &event_loop, const char *base)
 {
 	if (!StringStartsWithCaseASCII(base, "smb://"))
 		return nullptr;

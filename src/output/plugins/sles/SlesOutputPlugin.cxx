@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@
 #include "thread/Cond.hxx"
 #include "util/Domain.hxx"
 #include "util/ByteOrder.hxx"
+#include "mixer/MixerList.hxx"
 #include "Log.hxx"
 
 #include <SLES/OpenSLES.h>
@@ -111,7 +112,7 @@ private:
 	 * been consumed.  It synthesises and enqueues the next
 	 * buffer.
 	 */
-	static void PlayedCallback(gcc_unused SLAndroidSimpleBufferQueueItf caller,
+	static void PlayedCallback([[maybe_unused]] SLAndroidSimpleBufferQueueItf caller,
 				   void *pContext)
 	{
 		SlesOutput &sles = *(SlesOutput *)pContext;
@@ -322,8 +323,9 @@ SlesOutput::Play(const void *chunk, size_t size)
 	assert(filled < BUFFER_SIZE);
 
 	cond.wait(lock, [this]{
-		assert(filled == 0);
-		return n_queued != N_BUFFERS;
+		bool ret = n_queued != N_BUFFERS;
+		assert(ret || filled == 0);
+		return ret;
 	});
 
 	size_t nbytes = std::min(BUFFER_SIZE - filled, size);
@@ -411,5 +413,5 @@ const struct AudioOutputPlugin sles_output_plugin = {
 	"sles",
 	sles_test_default_device,
 	SlesOutput::Create,
-	nullptr,
+	&android_mixer_plugin,
 };

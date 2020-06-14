@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@ public:
 	}
 
 	/* virtual methods from InputStream */
-	bool IsEOF() const noexcept override;
+	[[nodiscard]] bool IsEOF() const noexcept override;
 	size_t Read(std::unique_lock<Mutex> &lock,
 		    void *ptr, size_t size) override;
 	void Seek(std::unique_lock<Mutex> &lock,

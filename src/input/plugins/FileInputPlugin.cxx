@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 #include "fs/Path.hxx"
 #include "fs/FileInfo.hxx"
 #include "fs/io/FileReader.hxx"
-#include "system/FileDescriptor.hxx"
+#include "io/FileDescriptor.hxx"
 #include "util/RuntimeError.hxx"
 
 #include <sys/stat.h>
@@ -43,7 +43,7 @@ public:
 
 	/* virtual methods from InputStream */
 
-	bool IsEOF() const noexcept override {
+	[[nodiscard]] bool IsEOF() const noexcept override {
 		return GetOffset() >= GetSize();
 	}
 

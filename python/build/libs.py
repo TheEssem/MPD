@@ -4,13 +4,14 @@ from os.path import abspath
 from build.project import Project
 from build.zlib import ZlibProject
 from build.meson import MesonProject
+from build.cmake import CmakeProject
 from build.autotools import AutotoolsProject
 from build.ffmpeg import FfmpegProject
 from build.boost import BoostProject
 
 libmpdclient = MesonProject(
-    'https://www.musicpd.org/download/libmpdclient/2/libmpdclient-2.16.tar.xz',
-    'fa6bdab67c0e0490302b38f00c27b4959735c3ec8aef7a88327adb1407654464',
+    'https://www.musicpd.org/download/libmpdclient/2/libmpdclient-2.18.tar.xz',
+    '4cb01e1f567e0169aca94875fb6e1200e7f5ce35b63a4df768ec1591fb1081fa',
     'lib/libmpdclient.a',
 )
 
@@ -52,8 +53,8 @@ opus = AutotoolsProject(
 )
 
 flac = AutotoolsProject(
-    'http://downloads.xiph.org/releases/flac/flac-1.3.2.tar.xz',
-    '91cfc3ed61dc40f47f050a109b08610667d73477af6ef36dcad31c31a4a8d53f',
+    'http://downloads.xiph.org/releases/flac/flac-1.3.3.tar.xz',
+    '213e82bd716c9de6db2f98bcadbc4c24c7e2efe8c75939a1a84e28539c4e1748',
     'lib/libFLAC.a',
     [
         '--disable-shared', '--enable-static',
@@ -111,9 +112,44 @@ liblame = AutotoolsProject(
     ],
 )
 
+libmodplug = AutotoolsProject(
+    'https://downloads.sourceforge.net/modplug-xmms/libmodplug/0.8.9.0/libmodplug-0.8.9.0.tar.gz',
+    '457ca5a6c179656d66c01505c0d95fafaead4329b9dbaa0f997d00a3508ad9de',
+    'lib/libmodplug.a',
+    [
+        '--disable-shared', '--enable-static',
+    ],
+)
+
+wildmidi = CmakeProject(
+    'https://codeload.github.com/Mindwerks/wildmidi/tar.gz/wildmidi-0.4.3',
+    '498e5a96455bb4b91b37188ad6dcb070824e92c44f5ed452b90adbaec8eef3c5',
+    'lib/libWildMidi.a',
+    [
+        '-DBUILD_SHARED_LIBS=OFF',
+        '-DWANT_PLAYER=OFF',
+        '-DWANT_STATIC=ON',
+    ],
+    base='wildmidi-wildmidi-0.4.3',
+    name='wildmidi',
+    version='0.4.3',
+)
+
+gme = CmakeProject(
+    'https://bitbucket.org/mpyne/game-music-emu/downloads/game-music-emu-0.6.3.tar.xz',
+    'aba34e53ef0ec6a34b58b84e28bf8cfbccee6585cebca25333604c35db3e051d',
+    'lib/libgme.a',
+    [
+        '-DBUILD_SHARED_LIBS=OFF',
+        '-DENABLE_UBSAN=OFF',
+        '-DZLIB_INCLUDE_DIR=OFF',
+        '-DSDL2_DIR=OFF',
+    ],
+)
+
 ffmpeg = FfmpegProject(
-    'http://ffmpeg.org/releases/ffmpeg-4.2.tar.xz',
-    '023f10831a97ad93d798f53a3640e55cd564abfeba807ecbe8524dac4fedecd5',
+    'http://ffmpeg.org/releases/ffmpeg-4.2.3.tar.xz',
+    '9df6c90aed1337634c1fb026fb01c154c29c82a64ea71291ff2da9aacb9aad31',
     'lib/libavcodec.a',
     [
         '--disable-shared', '--enable-static',
@@ -341,8 +377,8 @@ ffmpeg = FfmpegProject(
 )
 
 curl = AutotoolsProject(
-    'http://curl.haxx.se/download/curl-7.65.3.tar.xz',
-    'f2d98854813948d157f6a91236ae34ca4a1b4cb302617cebad263d79b0235fea',
+    'http://curl.haxx.se/download/curl-7.70.0.tar.xz',
+    '032f43f2674008c761af19bf536374128c16241fb234699a55f9fb603fcfbae7',
     'lib/libcurl.a',
     [
         '--disable-shared', '--enable-static',
@@ -358,6 +394,11 @@ curl = AutotoolsProject(
         '--disable-manual',
         '--disable-threaded-resolver', '--disable-verbose', '--disable-sspi',
         '--disable-crypto-auth', '--disable-ntlm-wb', '--disable-tls-srp', '--disable-cookies',
+        '--disable-doh',
+        '--disable-mime',
+        '--disable-netrc',
+        '--disable-progress-meter',
+        '--disable-alt-svc',
         '--without-ssl', '--without-gnutls', '--without-nss', '--without-libssh2',
     ],
 
@@ -365,8 +406,8 @@ curl = AutotoolsProject(
 )
 
 libexpat = AutotoolsProject(
-    'https://github.com/libexpat/libexpat/releases/download/R_2_2_7/expat-2.2.7.tar.bz2',
-    'cbc9102f4a31a8dafd42d642e9a3aa31e79a0aedaa1f6efd2795ebc83174ec18',
+    'https://github.com/libexpat/libexpat/releases/download/R_2_2_9/expat-2.2.9.tar.bz2',
+    'f1063084dc4302a427dabcca499c8312b3a32a29b7d2506653ecc8f950a9a237',
     'lib/libexpat.a',
     [
         '--disable-shared', '--enable-static',
@@ -392,7 +433,7 @@ libnfs = AutotoolsProject(
 )
 
 boost = BoostProject(
-    'https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2',
-    'd73a8da01e8bf8c7eda40b4c84915071a8c8a0df4a6734537ddde4a8580524ee',
+    'https://dl.bintray.com/boostorg/release/1.73.0/source/boost_1_73_0.tar.bz2',
+    '4eb3b8d442b426dc35346235c8733b5ae35ba431690e38c6a8263dce9fcbb402',
     'include/boost/version.hpp',
 )

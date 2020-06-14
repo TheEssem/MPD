@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,13 +24,14 @@
 #include "storage/StorageInterface.hxx"
 #include "fs/AllocatedPath.hxx"
 #include "fs/FileInfo.hxx"
+#include "fs/Traits.hxx"
 #include "Log.hxx"
 
-#include <string>
-#include <map>
+#include <cassert>
 #include <forward_list>
+#include <map>
+#include <string>
 
-#include <assert.h>
 #include <sys/inotify.h>
 #include <string.h>
 #include <dirent.h>
@@ -60,10 +61,10 @@ struct WatchDirectory {
 	WatchDirectory(const WatchDirectory &) = delete;
 	WatchDirectory &operator=(const WatchDirectory &) = delete;
 
-	gcc_pure
+	[[nodiscard]] gcc_pure
 	unsigned GetDepth() const noexcept;
 
-	gcc_pure
+	[[nodiscard]] gcc_pure
 	AllocatedPath GetUriFS() const noexcept;
 };
 
@@ -146,9 +147,8 @@ WatchDirectory::GetUriFS() const noexcept
 /* we don't look at "." / ".." nor files with newlines in their name */
 static bool skip_path(const char *path)
 {
-	return (path[0] == '.' && path[1] == 0) ||
-		(path[0] == '.' && path[1] == '.' && path[2] == 0) ||
-		strchr(path, '\n') != nullptr;
+	return PathTraitsFS::IsSpecialFilename(path) ||
+		std::strchr(path, '\n') != nullptr;
 }
 
 static void
@@ -236,7 +236,7 @@ WatchDirectory::GetDepth() const noexcept
 
 static void
 mpd_inotify_callback(int wd, unsigned mask,
-		     gcc_unused const char *name, gcc_unused void *ctx)
+		     [[maybe_unused]] const char *name, [[maybe_unused]] void *ctx)
 {
 	WatchDirectory *directory;
 
@@ -330,7 +330,7 @@ mpd_inotify_init(EventLoop &loop, Storage &storage, UpdateService &update,
 }
 
 void
-mpd_inotify_finish(void) noexcept
+mpd_inotify_finish() noexcept
 {
 	if (inotify_source == nullptr)
 		return;

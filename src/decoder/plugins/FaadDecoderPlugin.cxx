@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,19 +21,18 @@
 #include "../DecoderAPI.hxx"
 #include "../DecoderBuffer.hxx"
 #include "input/InputStream.hxx"
-#include "CheckAudioFormat.hxx"
+#include "pcm/CheckAudioFormat.hxx"
 #include "tag/Handler.hxx"
 #include "util/ScopeExit.hxx"
 #include "util/ConstBuffer.hxx"
 #include "util/Domain.hxx"
+#include "util/Math.hxx"
 #include "Log.hxx"
 
+#include <cassert>
+#include <cstring>
+
 #include <neaacdec.h>
-
-#include <cmath>
-
-#include <assert.h>
-#include <string.h>
 
 static const unsigned adts_sample_rates[] =
     { 96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050,
@@ -72,8 +71,7 @@ adts_find_frame(DecoderBuffer &buffer)
 			return 0;
 
 		/* find the 0xff marker */
-		const uint8_t *p = (const uint8_t *)
-			memchr(data.data, 0xff, data.size);
+		auto p = (const uint8_t *)std::memchr(data.data, 0xff, data.size);
 		if (p == nullptr) {
 			/* no marker - discard the buffer */
 			buffer.Clear();
@@ -231,7 +229,7 @@ faad_song_duration(DecoderBuffer &buffer, InputStream &is)
 static NeAACDecHandle
 faad_decoder_new()
 {
-	const NeAACDecHandle decoder = NeAACDecOpen();
+	auto decoder = NeAACDecOpen();
 
 	NeAACDecConfigurationPtr config =
 		NeAACDecGetCurrentConfiguration(decoder);
@@ -324,7 +322,7 @@ faad_get_file_time(InputStream &is)
 
 static void
 faad_stream_decode(DecoderClient &client, InputStream &is,
-		   DecoderBuffer &buffer, const NeAACDecHandle decoder)
+		   DecoderBuffer &buffer, NeAACDecHandle decoder)
 {
 	const auto total_time = faad_song_duration(buffer, is);
 
@@ -406,7 +404,7 @@ faad_stream_decode(DecoderClient &client, InputStream &is)
 
 	/* create the libfaad decoder */
 
-	const NeAACDecHandle decoder = faad_decoder_new();
+	auto decoder = faad_decoder_new();
 	AtScopeExit(decoder) { NeAACDecClose(decoder); };
 
 	faad_stream_decode(client, is, buffer, decoder);

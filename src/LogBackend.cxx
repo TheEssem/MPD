@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,9 +21,11 @@
 #include "Log.hxx"
 #include "util/Domain.hxx"
 #include "util/StringStrip.hxx"
+#include "Version.h"
 #include "config.h"
 
-#include <assert.h>
+#include <cassert>
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

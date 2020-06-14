@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,8 @@
 
 #include <soxr.h>
 
-#include <assert.h>
+#include <cassert>
+
 #include <string.h>
 
 static constexpr Domain soxr_domain("soxr");
@@ -122,7 +123,7 @@ SoxrPcmResampler::Open(AudioFormat &af, unsigned new_sample_rate)
 	ratio = float(new_sample_rate) / float(af.sample_rate);
 	FormatDebug(soxr_domain,
 		    "samplerate conversion ratio to %.2lf",
-		    ratio);
+		    double(ratio));
 
 	/* libsoxr works with floating point samples */
 	af.format = SampleFormat::FLOAT;
@@ -157,7 +158,7 @@ SoxrPcmResampler::Resample(ConstBuffer<void> src)
 	/* always round up: worst case output buffer size */
 	const size_t o_frames = size_t(n_frames * ratio) + 1;
 
-	float *output_buffer = (float *)buffer.Get(o_frames * frame_size);
+	auto *output_buffer = (float *)buffer.Get(o_frames * frame_size);
 
 	size_t i_done, o_done;
 	soxr_error_t e = soxr_process(soxr, src.data, n_frames, &i_done,
@@ -174,7 +175,7 @@ SoxrPcmResampler::Flush()
 	const size_t frame_size = channels * sizeof(float);
 	const size_t o_frames = 1024;
 
-	float *output_buffer = (float *)buffer.Get(o_frames * frame_size);
+	auto *output_buffer = (float *)buffer.Get(o_frames * frame_size);
 
 	size_t o_done;
 	soxr_error_t e = soxr_process(soxr, nullptr, 0, nullptr,

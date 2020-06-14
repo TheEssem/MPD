@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ AvahiRegisterService(AvahiClient *c);
 static void
 AvahiGroupCallback(AvahiEntryGroup *g,
 		   AvahiEntryGroupState state,
-		   gcc_unused void *userdata)
+		   [[maybe_unused]] void *userdata)
 {
 	assert(g != nullptr);
 
@@ -149,7 +149,7 @@ AvahiRegisterService(AvahiClient *c)
 /* Callback when avahi changes state */
 static void
 MyAvahiClientCallback(AvahiClient *c, AvahiClientState state,
-		      gcc_unused void *userdata)
+		      [[maybe_unused]] void *userdata)
 {
 	assert(c != nullptr);
 

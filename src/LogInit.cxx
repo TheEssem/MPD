@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -30,11 +30,12 @@
 #include "util/RuntimeError.hxx"
 #include "system/Error.hxx"
 
+#include <cassert>
+
 #ifdef ENABLE_SYSTEMD_DAEMON
 #include <systemd/sd-daemon.h>
 #endif
 
-#include <assert.h>
 #include <string.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -45,7 +46,7 @@
 #define LOG_DATE_BUF_SIZE 16
 #define LOG_DATE_LEN (LOG_DATE_BUF_SIZE - 1)
 
-gcc_unused
+[[maybe_unused]]
 static constexpr Domain log_domain("log");
 
 #ifndef ANDROID
@@ -63,7 +64,7 @@ static void redirect_logs(int fd)
 }
 
 static int
-open_log_file(void)
+open_log_file()
 {
 	assert(!out_path.IsNull());
 

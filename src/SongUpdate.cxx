@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,8 @@
 #include "TagArchive.hxx"
 #endif
 
-#include <assert.h>
+#include <cassert>
+
 #include <string.h>
 
 #ifdef ENABLE_DATABASE
@@ -43,7 +44,7 @@ SongPtr
 Song::LoadFile(Storage &storage, const char *path_utf8, Directory &parent)
 {
 	assert(!uri_has_scheme(path_utf8));
-	assert(strchr(path_utf8, '\n') == nullptr);
+	assert(std::strchr(path_utf8, '\n') == nullptr);
 
 	auto song = std::make_unique<Song>(path_utf8, parent);
 	if (!song->UpdateFile(storage))
@@ -87,8 +88,6 @@ Song::UpdateFile(Storage &storage)
 	return true;
 }
 
-#endif
-
 #ifdef ENABLE_ARCHIVE
 
 SongPtr
@@ -96,7 +95,7 @@ Song::LoadFromArchive(ArchiveFile &archive, const char *name_utf8,
 		      Directory &parent) noexcept
 {
 	assert(!uri_has_scheme(name_utf8));
-	assert(strchr(name_utf8, '\n') == nullptr);
+	assert(std::strchr(name_utf8, '\n') == nullptr);
 
 	auto song = std::make_unique<Song>(name_utf8, parent);
 	if (!song->UpdateFileInArchive(archive))
@@ -129,6 +128,8 @@ Song::UpdateFileInArchive(ArchiveFile &archive) noexcept
 }
 
 #endif
+
+#endif /* ENABLE_DATABASE */
 
 bool
 DetachedSong::LoadFile(Path path)

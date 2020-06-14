@@ -283,6 +283,7 @@ The following tags are supported by :program:`MPD`:
 * **date**: the song's release date. This is usually a 4-digit year.
 * **composer**: the artist who composed the song.
 * **performer**: the artist who performed the song.
+* **conductor**: the conductor who conducted the song.
 * **work**: `"a work is a distinct intellectual or artistic creation,
   which can be expressed in the form of one or more audio recordings" <https://musicbrainz.org/doc/Work>`_
 * **grouping**: "used if the sound belongs to a larger category of
@@ -388,7 +389,9 @@ Querying :program:`MPD`'s status
 
 :command:`currentsong`
     Displays the song info of the current song (same song that
-    is identified in status).
+    is identified in status). Information about the current song
+    is represented by key-value pairs, one on each line. The first
+    pair must be the `file` key-value pair.
 
 .. _command_idle:
 
@@ -412,6 +415,8 @@ Querying :program:`MPD`'s status
     - ``sticker``: the sticker database has been modified.
     - ``subscription``: a client has subscribed or unsubscribed to a channel
     - ``message``: a message was received on a channel this client is subscribed to; this event is only emitted when the queue is empty
+    - ``neighbor``: a neighbor was found or lost
+    - ``mount``: the mount list has changed
 
     Change events accumulate, even while the connection is not in
     "idle" mode; no events gets lost while the client is doing
@@ -438,6 +443,8 @@ Querying :program:`MPD`'s status
     Reports the current status of the player and the volume
     level.
 
+    - ``partition``: the name of the current partition (see
+      :ref:`partition_commands`)
     - ``volume``: ``0-100`` (deprecated: ``-1`` if the volume cannot
       be determined)
     - ``repeat``: ``0`` or ``1``
@@ -478,7 +485,8 @@ Querying :program:`MPD`'s status
     - ``songs``: number of songs
     - ``uptime``: daemon uptime in seconds
     - ``db_playtime``: sum of all song times in the database in seconds
-    - ``db_update``: last db update in UNIX time
+    - ``db_update``: last db update in UNIX time (seconds since
+      1970-01-01 UTC)
     - ``playtime``: time length of music played
 
 Playback options
@@ -1087,8 +1095,8 @@ access NFS and SMB servers.
 Multiple storages can be "mounted" together, similar to the
 `mount` command on many operating
 systems, but without cooperation from the kernel.  No
-superuser privileges are necessary, beause this mapping exists
-only inside the :program:`MPD` process
+superuser privileges are necessary, because this mapping exists
+only inside the :program:`MPD` process.
 
 .. _command_mount:
 
@@ -1237,6 +1245,8 @@ Connection settings
     Announce that this client is interested in all tag
     types.  This is the default setting for new clients.
 
+.. _partition_commands:
+
 Partition commands
 ==================
 
@@ -1256,6 +1266,13 @@ client is assigned to one partition at a time.
 
 :command:`newpartition {NAME}`
     Create a new partition.
+
+:command:`delpartition {NAME}`
+    Delete a partition.  The partition must be empty (no connected
+    clients and no outputs).
+
+:command:`moveoutput {OUTPUTNAME}`
+    Move an output to the current partition.
 
 Audio output devices
 ====================
@@ -1345,6 +1362,9 @@ additional services.
 
 New messages are indicated by the ``message``
 idle event.
+
+If your MPD instance has multiple partitions, note that
+client-to-client messages are local to the current partition.
 
 :command:`subscribe {NAME}`
     Subscribe to a channel.  The channel is created if it

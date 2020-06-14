@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2019 The Music Player Daemon Project
+ * Copyright 2003-2020 The Music Player Daemon Project
  * http://www.musicpd.org
  *
  * This program is free software; you can redistribute it and/or modify
@@ -50,7 +50,7 @@ class SmbclientNeighborExplorer final : public NeighborExplorer {
 			return name == other.name;
 		}
 
-		gcc_pure
+		[[nodiscard]] gcc_pure
 		NeighborInfo Export() const noexcept {
 			return { "smb://" + name + "/", comment };
 		}
@@ -66,7 +66,7 @@ class SmbclientNeighborExplorer final : public NeighborExplorer {
 	bool quit;
 
 public:
-	SmbclientNeighborExplorer(NeighborListener &_listener) noexcept
+	explicit SmbclientNeighborExplorer(NeighborListener &_listener) noexcept
 		:NeighborExplorer(_listener),
 		 thread(BIND_THIS_METHOD(ThreadFunc)) {}
 
@@ -179,9 +179,9 @@ DetectServers() noexcept
 }
 
 gcc_pure
-static NeighborExplorer::List::const_iterator
-FindBeforeServerByURI(NeighborExplorer::List::const_iterator prev,
-		      NeighborExplorer::List::const_iterator end,
+static NeighborExplorer::List::iterator
+FindBeforeServerByURI(NeighborExplorer::List::iterator prev,
+		      NeighborExplorer::List::iterator end,
 		      const std::string &uri) noexcept
 {
 	for (auto i = std::next(prev); i != end; prev = i, i = std::next(prev))
@@ -252,9 +252,9 @@ SmbclientNeighborExplorer::ThreadFunc() noexcept
 }
 
 static std::unique_ptr<NeighborExplorer>
-smbclient_neighbor_create(gcc_unused EventLoop &loop,
+smbclient_neighbor_create([[maybe_unused]] EventLoop &loop,
 			  NeighborListener &listener,
-			  gcc_unused const ConfigBlock &block)
+			  [[maybe_unused]] const ConfigBlock &block)
 {
 	SmbclientInit();
 
