@@ -44,6 +44,7 @@ static constexpr size_t MODPLUG_PREALLOC_BLOCK = 256 * 1024;
 static constexpr offset_type MODPLUG_FILE_LIMIT = 100 * 1024 * 1024;
 
 static int modplug_loop_count;
+static int modplug_resampler;
 
 static bool
 modplug_decoder_init(const ConfigBlock &block)
@@ -52,6 +53,10 @@ modplug_decoder_init(const ConfigBlock &block)
 	if (modplug_loop_count < -1)
 		throw FormatRuntimeError("Invalid loop count in line %d: %i",
 					 block.line, modplug_loop_count);
+	modplug_resampler = block.GetBlockValue("resampler", 3);
+	if (modplug_resampler < 0 || modplug_resampler > 3)
+		throw FormatRuntimeError("Invalid resampler in line %d: %i",
+					 block.line, modplug_resampler);
 
 	return true;
 }
@@ -139,7 +144,7 @@ mod_decode(DecoderClient &client, InputStream &is)
 
 	ModPlug_GetSettings(&settings);
 	/* alter setting */
-	settings.mResamplingMode = MODPLUG_RESAMPLE_FIR; /* RESAMP */
+	settings.mResamplingMode = modplug_resampler;
 	settings.mChannels = 2;
 	settings.mBits = 16;
 	settings.mFrequency = 44100;
